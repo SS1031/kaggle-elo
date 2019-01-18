@@ -1,0 +1,1 @@
+INDIR = "../data/input/"
