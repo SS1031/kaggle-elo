@@ -1,1 +1,5 @@
-INDIR = "../data/input/"
+KEY = "card_id"
+TARGET = "target"
+INDIR = "../data/inputs/"
+TRNFEATDIR = "../data/features/trn/"
+TSTFEATDIR = "../data/features/tst/"
