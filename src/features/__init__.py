@@ -1,3 +1,4 @@
+import gc
 import os
 import hashlib
 import pandas as pd
@@ -8,6 +9,7 @@ import utils
 import warnings
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
+
 
 class FeatureBase:
     """
@@ -57,26 +59,37 @@ class FeatureBase:
 
             return trn_feature_files, tst_feature_files
 
-        os.makedirs(trn_dir)
-        os.makedirs(tst_dir)
 
         print("Start computing feature [{}] (train_cache_dir=[{}], test_cache_dir=[{}])".format(
             self.__class__.__name__, trn_dir, tst_dir
         ))
 
-        df = pd.read_feather(self.fin)
-        df = self.create_feature_impl(df, random_state)
-        df = utils.reduce_mem_usage(df)
+        if isinstance(self.fin, list):
+            df_list = []
+            for f in self.fin:
+                df_list.append(pd.read_feather(f))
+            print(df_list)
+            feat = self.create_feature_impl(df_list, random_state)
+            del df_list
+            gc.collect()
+        else:
+            df = pd.read_feather(self.fin)
+            feat = self.create_feature_impl(df, random_state)
+            del df
+            gc.collect()
 
-        trn = self.trn_base.merge(df, on=CONST.KEY, how='left').drop(columns=CONST.KEY)
-        tst = self.tst_base.merge(df, on=CONST.KEY, how='left').drop(columns=CONST.KEY)
+        feat = utils.reduce_mem_usage(feat)
+        trn = self.trn_base.merge(feat, on=CONST.KEY, how='left').drop(columns=CONST.KEY)
+        tst = self.tst_base.merge(feat, on=CONST.KEY, how='left').drop(columns=CONST.KEY)
 
         trn = trn.add_prefix(self.pref)
         tst = tst.add_prefix(self.pref)
 
+        # Save ...
+        os.makedirs(trn_dir)
+        os.makedirs(tst_dir)
         utils.to_feature(trn, trn_dir)
         utils.to_feature(tst, tst_dir)
-
         trn_feature_files = list(Path(trn_dir).glob('*.f'))
         tst_feature_files = list(Path(tst_dir).glob('*.f'))
 

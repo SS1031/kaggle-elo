@@ -24,7 +24,7 @@ def input_to_feather():
             df['purchase_date'] = pd.to_datetime(df['purchase_date'])
         if 'first_active_month' in df.columns:
             df['first_active_month'] = pd.to_datetime(df['first_active_month'])
-
+        # Y, Nをbinarizeしたいカラムがある
         if 'authorized_flag' in df.columns and 'category_1' in df.columns:
             df = binarize(df)
         df = reduce_mem_usage(df)

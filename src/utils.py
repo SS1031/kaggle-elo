@@ -67,3 +67,7 @@ def load_trn_base():
 
 def load_tst_base():
     return pd.read_feather(os.path.join(CONST.INDIR, 'test.feather'))[[CONST.KEY]]
+
+
+def load_target():
+    return pd.read_feather(os.path.join(CONST.INDIR, 'train.feather'))[[CONST.TARGET]]

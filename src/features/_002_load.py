@@ -3,6 +3,7 @@ import pandas as pd
 import multiprocessing
 from multiprocessing.pool import Pool
 
+import utils
 from features._001_mapper import MAPPER
 
 
@@ -36,12 +37,14 @@ def load_feature_sets(feature_sets):
     with Pool(multiprocessing.cpu_count()) as p:
         df_trn_list = p.map(load_feature, trn_paths)
     trn = pd.concat(df_trn_list, axis=1)
+    trn = pd.concat([utils.load_trn_base(), trn], axis=1)
     del df_trn_list
     gc.collect()
 
     with Pool(multiprocessing.cpu_count()) as p:
         df_tst_list = p.map(load_feature, tst_paths)
     tst = pd.concat(df_tst_list, axis=1)
+    tst = pd.concat([utils.load_tst_base(), tst], axis=1)
     del df_tst_list
     gc.collect()
 
@@ -58,5 +61,5 @@ def load_feature_sets(feature_sets):
 
 
 if __name__ == '__main__':
-    sets = ['_101_aggregate', '_102_aggregate_authorized', '_103_aggregate_rejected']
+    sets = ['_101_aggregate', '_102_aggregate_authorized', '_103_aggregate_rejected', '_201_aggregate']
     trn, tst = load_feature_sets(sets)
