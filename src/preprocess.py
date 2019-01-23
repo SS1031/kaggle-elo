@@ -5,8 +5,15 @@ from utils import reduce_mem_usage
 
 
 def binarize(df):
-    for col in ['authorized_flag', 'category_1']:
-        df[col] = df[col].map({'Y': 1, 'N': 0})
+    if "authorized_flag" in df.columns:
+        df["authorized_flag"] = df["authorized_flag"].map({'Y': 1, 'N': 0})
+
+    if "category_1" in df.columns:
+        df["category_1"] = df["category_1"].map({'Y': 1, 'N': 0}).astype(int)
+
+    if "category_4" in df.columns:
+        df["category_4"] = df["category_4"].map({'Y': 1, 'N': 0}).astype(int)
+
     return df
 
 
@@ -33,8 +40,9 @@ def input_to_feather():
         if 'first_active_month' in df.columns:
             df['first_active_month'] = pd.to_datetime(df['first_active_month'])
         # Y, Nをbinarizeしたいカラムがある
-        if 'authorized_flag' in df.columns and 'category_1' in df.columns:
+        if 'authorized_flag' in df.columns or 'category_1' in df.columns or 'category_4' in df.columns:
             df = binarize(df)
+
         df = reduce_mem_usage(df)
 
         df.to_feather(os.path.join(CONST.INDIR, f.split('.')[0] + '.feather'))

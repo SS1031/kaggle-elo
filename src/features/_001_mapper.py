@@ -7,6 +7,7 @@ from features._106_aggregate_rejected_per_month import _106_AggregateRejectedPer
 from features._201_aggregate import _201_Aggregate
 from features._202_sub_aggregate import _202_SubAggregate
 from features._301_train_test import _301_TrainTest
+from features._401_aggregate import _401_Aggregate
 
 MAPPER = {
     "_101_aggregate": _101_Aggregate,
@@ -18,4 +19,5 @@ MAPPER = {
     "_201_aggregate": _201_Aggregate,
     "_202_sub_aggregate": _202_SubAggregate,
     "_301_train_test": _301_TrainTest,
+    "_401_aggregate": _401_Aggregate,
 }
