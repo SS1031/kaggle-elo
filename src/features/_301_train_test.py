@@ -22,7 +22,7 @@ class _301_TrainTest(FeatureBase):
         feat['fa_dayofweek'] = feat['first_active_month'].dt.dayofweek
         feat['fa_weekofyear'] = feat['first_active_month'].dt.weekofyear
         feat['fa_month'] = feat['first_active_month'].dt.month
-        feat['fa_elapsed_time'] = (datetime.datetime.today() - feat['first_active_month']).dt.days
+        feat['fa_elapsed_time'] = (CONST.REFDATE - feat['first_active_month']).dt.days
         feat.drop(columns='first_active_month', inplace=True)
 
         return feat

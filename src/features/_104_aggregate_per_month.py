@@ -12,7 +12,7 @@ class _104_AggregatePerMonth(FeatureBase):
     pref = "_104_hist_agg_per_mon_"
 
     def create_feature_impl(self, df, random_state):
-        df['month_diff'] = (datetime.datetime.today() - df['purchase_date']).dt.days // 30
+        df['month_diff'] = (CONST.REFDATE - df['purchase_date']).dt.days // 30
         df['month_diff'] += df['month_lag']
 
         grouped = df.groupby(['card_id', 'month_lag'])
