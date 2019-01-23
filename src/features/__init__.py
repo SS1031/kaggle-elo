@@ -59,16 +59,13 @@ class FeatureBase:
 
             return trn_feature_files, tst_feature_files
 
-
         print("Start computing feature [{}] (train_cache_dir=[{}], test_cache_dir=[{}])".format(
             self.__class__.__name__, trn_dir, tst_dir
         ))
 
         if isinstance(self.fin, list):
-            df_list = []
-            for f in self.fin:
-                df_list.append(pd.read_feather(f))
-            print(df_list)
+            # 入力ファイルがlistだった場合DataFrameのlistを渡す
+            df_list = [pd.read_feather(f) for f in self.fin]
             feat = self.create_feature_impl(df_list, random_state)
             del df_list
             gc.collect()

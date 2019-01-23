@@ -10,6 +10,14 @@ def binarize(df):
     return df
 
 
+def build_structure():
+    for c in dir(CONST):
+        if isinstance(getattr(CONST, c), str) and c != "__package__":
+            if getattr(CONST, c)[-1] == '/':
+                if not os.path.exists(getattr(CONST, c)):
+                    os.makedirs(os.path.exists(getattr(CONST, c)))
+
+
 def input_to_feather():
     files = [f for f in os.listdir(CONST.INDIR) if '.csv' in f]
     for f in files:
@@ -33,4 +41,5 @@ def input_to_feather():
 
 
 if __name__ == '__main__':
+    build_structure()
     input_to_feather()

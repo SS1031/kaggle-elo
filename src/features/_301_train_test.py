@@ -15,6 +15,7 @@ class _301_TrainTest(FeatureBase):
 
     def create_feature_impl(self, df_list, random_state):
         feat = pd.concat([df_list[0].drop(columns="target"), df_list[1]], axis=0)
+
         del df_list
         gc.collect()
 
