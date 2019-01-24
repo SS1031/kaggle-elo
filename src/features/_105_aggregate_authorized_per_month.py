@@ -12,14 +12,14 @@ class _105_AggregateAuthorizedPerMonth(FeatureBase):
     pref = "_105_hist_agg_auth_per_mon_"
 
     def create_feature_impl(self, df, random_state):
-        df['month_diff'] = (datetime.datetime.today() - df['purchase_date']).dt.days // 30
+        df['month_diff'] = (CONST.DATE - df['purchase_date']).dt.days // 30
         df['month_diff'] += df['month_lag']
         df = df[df['authorized_flag'] == 1]
 
         grouped = df.groupby(['card_id', 'month_lag'])
         agg_func = {
-            'purchase_amount': ['count', 'sum', 'mean', 'min', 'max', 'std'],
-            'installments': ['count', 'sum', 'mean', 'min', 'max', 'std'],
+            'purchase_amount': ['count', 'sum', 'mean', 'min', 'max', 'std', 'skew', pd.DataFrame.kurt],
+            'installments': ['count', 'sum', 'mean', 'min', 'max', 'std', 'skew', pd.DataFrame.kurt],
         }
 
         tmp_grp = grouped.agg(agg_func)
@@ -35,4 +35,7 @@ class _105_AggregateAuthorizedPerMonth(FeatureBase):
 
 
 if __name__ == '__main__':
-    trn_list, tst_list = _105_AggregateAuthorizedPerMonth().create_feature()
+    # trn_list, tst_list = _105_AggregateAuthorizedPerMonth().create_feature()
+
+    fin = os.path.join(CONST.INDIR, "historical_transactions.feather")
+    df = pd.read_feather(fin)

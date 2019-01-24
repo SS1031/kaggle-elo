@@ -13,7 +13,7 @@ class _103_AggregateRejected(FeatureBase):
 
     def create_feature_impl(self, df, random_state):
         df = pd.get_dummies(df, columns=['category_2', 'category_3'])
-        df['month_diff'] = (datetime.datetime.today() - df['purchase_date']).dt.days // 30
+        df['month_diff'] = (CONST.DATE - df['purchase_date']).dt.days // 30
         df['month_diff'] += df['month_lag']
         df['purchase_month'] = df['purchase_date'].dt.month
         df['purchase_date'] = pd.DatetimeIndex(df['purchase_date']).astype(np.int64) * 1e-9
@@ -22,9 +22,9 @@ class _103_AggregateRejected(FeatureBase):
         agg_func = {
             'card_id': ['size'],
             'category_1': ['sum', 'mean'],
+            'category_2_3.0': ['mean'],
             'category_2_1.0': ['mean'],
             'category_2_2.0': ['mean'],
-            'category_2_3.0': ['mean'],
             'category_2_4.0': ['mean'],
             'category_2_5.0': ['mean'],
             'category_3_A': ['mean'],
@@ -35,8 +35,8 @@ class _103_AggregateRejected(FeatureBase):
             'state_id': ['nunique'],
             'city_id': ['nunique'],
             'subsector_id': ['nunique'],
-            'purchase_amount': ['sum', 'mean', 'max', 'min', 'std'],
-            'installments': ['sum', 'mean', 'max', 'min', 'std'],
+            'purchase_amount': ['sum', 'mean', 'max', 'min', 'std', 'skew', pd.DataFrame.kurt],
+            'installments': ['sum', 'mean', 'max', 'min', 'std', 'skew', pd.DataFrame.kurt],
             'purchase_month': ['mean', 'max', 'min', 'std'],
             'purchase_date': [np.ptp, 'min', 'max'],
             'month_lag': ['mean', 'max', 'min', 'std'],

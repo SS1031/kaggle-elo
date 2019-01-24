@@ -4,6 +4,7 @@ from features._103_aggregate_rejected import _103_AggregateRejected
 from features._104_aggregate_per_month import _104_AggregatePerMonth
 from features._105_aggregate_authorized_per_month import _105_AggregateAuthorizedPerMonth
 from features._106_aggregate_rejected_per_month import _106_AggregateRejectedPerMonth
+from features._107_aggregate_per_hour import _107_AggregatePerHour
 from features._201_aggregate import _201_Aggregate
 from features._202_sub_aggregate import _202_SubAggregate
 from features._301_train_test import _301_TrainTest
@@ -16,6 +17,7 @@ MAPPER = {
     "_104_aggregate_per_month": _104_AggregatePerMonth,
     "_105_aggregate_authorized_per_month": _105_AggregateAuthorizedPerMonth,
     "_106_aggregate_rejected_per_month": _106_AggregateRejectedPerMonth,
+    "_107_aggregate_per_hour": _107_AggregatePerHour,
     "_201_aggregate": _201_Aggregate,
     "_202_sub_aggregate": _202_SubAggregate,
     "_301_train_test": _301_TrainTest,

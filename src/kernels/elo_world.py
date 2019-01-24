@@ -40,10 +40,10 @@ target = train['target']
 del train['target']
 
 historical_transactions['month_diff'] = \
-    (datetime.datetime.today() - historical_transactions['purchase_date']).dt.days // 30
+    (CONST.DATE() - historical_transactions['purchase_date']).dt.days // 30
 historical_transactions['month_diff'] += historical_transactions['month_lag']
 
-new_transactions['month_diff'] = ((datetime.datetime.today() - new_transactions['purchase_date']).dt.days) // 30
+new_transactions['month_diff'] = ((CONST.DATE() - new_transactions['purchase_date']).dt.days) // 30
 new_transactions['month_diff'] += new_transactions['month_lag']
 
 print(new_transactions.head())

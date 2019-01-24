@@ -12,7 +12,7 @@ class _106_AggregateRejectedPerMonth(FeatureBase):
     pref = "_106_hist_agg_rjct_per_mon_"
 
     def create_feature_impl(self, df, random_state):
-        df['month_diff'] = (datetime.datetime.today() - df['purchase_date']).dt.days // 30
+        df['month_diff'] = (CONST.DATE - df['purchase_date']).dt.days // 30
         df['month_diff'] += df['month_lag']
         df = df[df['authorized_flag'] == 0]
 
