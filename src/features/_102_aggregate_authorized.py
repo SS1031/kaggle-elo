@@ -13,7 +13,7 @@ class _102_AggregateAuthorized(FeatureBase):
 
     def create_feature_impl(self, df, random_state):
         df = pd.get_dummies(df, columns=['category_2', 'category_3'])
-        df['month_diff'] = (CONST.DATE() - df['purchase_date']).dt.days // 30
+        df['month_diff'] = (CONST.DATE - df['purchase_date']).dt.days // 30
         df['month_diff'] += df['month_lag']
         df['purchase_month'] = df['purchase_date'].dt.month
         df['purchase_date'] = pd.DatetimeIndex(df['purchase_date']).astype(np.int64) * 1e-9
