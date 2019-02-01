@@ -32,6 +32,7 @@ np.random.seed(SEED)
 
 trn, tst = load_feature_sets(conf['feature_sets'])
 features = [c for c in trn.columns if c not in ['card_id', 'first_active_month']]
+categorical_features = trn.dtypes[trn.dtypes == 'category'].index.tolist()
 
 target = utils.load_target()
 
@@ -47,15 +48,17 @@ mean_train_score = 0
 
 for fold_, (trn_idx, val_idx) in enumerate(folds.split(trn.values, target.values)):
     print("fold n={}".format(fold_ + 1))
-    trn_data = lgb.Dataset(trn.iloc[trn_idx][features],
-                           label=target.iloc[trn_idx],
-                           # categorical_feature=categorical_feats
-                           )
+    trn_data = lgb.Dataset(
+        trn.iloc[trn_idx][features],
+        label=target.iloc[trn_idx],
+        categorical_feature=categorical_features
+    )
 
-    val_data = lgb.Dataset(trn.iloc[val_idx][features],
-                           label=target.iloc[val_idx],
-                           # categorical_feature=categorical_feats
-                           )
+    val_data = lgb.Dataset(
+        trn.iloc[val_idx][features],
+        label=target.iloc[val_idx],
+        categorical_feature=categorical_features
+    )
 
     regr = lgb.train(param,
                      trn_data,

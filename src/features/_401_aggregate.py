@@ -12,7 +12,6 @@ class _401_Aggregate(FeatureBase):
     fin = [os.path.join(CONST.INDIR, "new_merchant_transactions.feather"),
            os.path.join(CONST.INDIR, "merchants.feather")]
     pref = "_401_new-merchant"
-    categorical_columns = []
 
     def create_feature_impl(self, df_list, random_state):
         n_trans = df_list[0]

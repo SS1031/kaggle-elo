@@ -10,7 +10,7 @@ import pprint
 
 def load_feature_path(feature_set):
     feature = MAPPER[feature_set]()
-    return [feature.create_feature(), feature.categorical_columns]
+    return feature.create_feature()
 
 
 def load_feature(path):
@@ -23,25 +23,17 @@ def load_feature_paths(feature_sets):
     with Pool(multiprocessing.cpu_count()) as p:
         ret = p.map(load_feature_path, feature_sets)
 
-    # pprint.pprint(ret[0])
-    # pprint.pprint(ret[1])
-    # pprint.pprint(ret[2])
-
     trn_paths = []
     tst_paths = []
-    categorical_cols = []
     for p in ret:
-        # pprint.pprint(p[0][0])
-        # pprint.pprint(p[0][1])
-        trn_paths.extend(p[0][0])
-        tst_paths.extend(p[0][1])
-        categorical_cols.extend(p[1])
+        trn_paths.extend(p[0])
+        tst_paths.extend(p[1])
 
-    return trn_paths, tst_paths, categorical_cols
+    return trn_paths, tst_paths
 
 
 def load_feature_sets(feature_sets):
-    trn_paths, tst_paths, categorical_cols = load_feature_paths(feature_sets)
+    trn_paths, tst_paths = load_feature_paths(feature_sets)
 
     with Pool(multiprocessing.cpu_count()) as p:
         df_trn_list = p.map(load_feature, trn_paths)
@@ -66,9 +58,9 @@ def load_feature_sets(feature_sets):
     if set(trn.columns) != set(tst.columns):
         raise Exception(f"difference columns!: {set(trn.columns).symmetric_difference(set(tst.columns))}")
 
-    return trn, tst, categorical_cols
+    return trn, tst
 
 
 if __name__ == '__main__':
-    sets = ['_101_aggregate']
-    trn, tst, categorical_cols = load_feature_sets(sets)
+    sets = ['_301_train_test']
+    trn, tst = load_feature_sets(sets)

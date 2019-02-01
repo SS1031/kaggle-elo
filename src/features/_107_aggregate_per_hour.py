@@ -10,7 +10,6 @@ from features import FeatureBase
 class _107_AggregatePerHour(FeatureBase):
     fin = os.path.join(CONST.INDIR, "historical_transactions.feather")
     pref = "_105_hist_agg_per_hour"
-    categorical_columns = []
 
     def create_feature_impl(self, df, random_state):
         df['hour'] = df.purchase_date.dt.hour.astype(str)

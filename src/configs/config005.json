@@ -1,0 +1,25 @@
+{
+  "seed": 777,
+  "feature_sets": [
+    "_301_train_test"
+  ],
+  "model": {
+    "name": "lgbm",
+    "params": {
+      "num_leaves": 111,
+      "min_data_in_leaf": 149,
+      "objective": "regression",
+      "max_depth": 9,
+      "learning_rate": 0.005,
+      "boosting": "gbdt",
+      "feature_fraction": 0.7522,
+      "bagging_freq": 1,
+      "bagging_fraction": 0.7083,
+      "bagging_seed": 11,
+      "metric": "rmse",
+      "lambda_l1": 0.2634,
+      "random_state": 133,
+      "verbosity": -1
+    }
+  }
+}

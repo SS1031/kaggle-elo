@@ -10,7 +10,6 @@ from features import FeatureBase
 class _104_AggregatePerMonth(FeatureBase):
     fin = os.path.join(CONST.INDIR, "historical_transactions.feather")
     pref = "_104_hist_agg_per_mon_"
-    categorical_columns = []
 
     def create_feature_impl(self, df, random_state):
         df['month_diff'] = (CONST.DATE - df['purchase_date']).dt.days // 30

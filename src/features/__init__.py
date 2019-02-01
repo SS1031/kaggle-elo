@@ -34,11 +34,6 @@ class FeatureBase:
     def pref(self):
         pass
 
-    @property
-    @abstractmethod
-    def categorical_columns(self):
-        pass
-
     @abstractmethod
     def create_feature_impl(self, df, random_state):
         raise NotImplementedError
@@ -53,13 +48,13 @@ class FeatureBase:
 
         return trn_dir, tst_dir
 
-    def create_feature(self, random_state=None):
+    def create_feature(self, random_state=None, devmode=False):
         trn_dir, tst_dir = self.get_feature_dir(random_state)
 
         if os.path.exists(trn_dir) and os.path.exists(tst_dir):
             print(
                 "There are cache dir for feature [{}] (train_cache_dir=[{}], test_cache_dir=[{}])".format(
-                self.__class__.__name__, trn_dir, tst_dir)
+                    self.__class__.__name__, trn_dir, tst_dir)
             )
             trn_feature_files = list(Path(trn_dir).glob('*.f'))
             tst_feature_files = list(Path(tst_dir).glob('*.f'))
@@ -90,11 +85,15 @@ class FeatureBase:
         tst = tst.add_prefix(self.pref)
 
         # Save ...
-        os.makedirs(trn_dir)
-        os.makedirs(tst_dir)
-        utils.to_feature(trn, trn_dir)
-        utils.to_feature(tst, tst_dir)
-        trn_feature_files = list(Path(trn_dir).glob('*.f'))
-        tst_feature_files = list(Path(tst_dir).glob('*.f'))
+        if not devmode:
+            os.makedirs(trn_dir)
+            os.makedirs(tst_dir)
+            utils.to_feature(trn, trn_dir)
+            utils.to_feature(tst, tst_dir)
+            trn_feature_files = list(Path(trn_dir).glob('*.f'))
+            tst_feature_files = list(Path(tst_dir).glob('*.f'))
 
-        return trn_feature_files, tst_feature_files
+            return trn_feature_files, tst_feature_files
+
+        else:
+            return trn, tst
