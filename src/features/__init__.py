@@ -34,6 +34,11 @@ class FeatureBase:
     def pref(self):
         pass
 
+    @property
+    @abstractmethod
+    def categorical_columns(self):
+        pass
+
     @abstractmethod
     def create_feature_impl(self, df, random_state):
         raise NotImplementedError
@@ -52,8 +57,10 @@ class FeatureBase:
         trn_dir, tst_dir = self.get_feature_dir(random_state)
 
         if os.path.exists(trn_dir) and os.path.exists(tst_dir):
-            print("There are cache dir for feature [{}] (train_cache_dir=[{}], test_cache_dir=[{}])".format(
-                self.__class__.__name__, trn_dir, tst_dir))
+            print(
+                "There are cache dir for feature [{}] (train_cache_dir=[{}], test_cache_dir=[{}])".format(
+                self.__class__.__name__, trn_dir, tst_dir)
+            )
             trn_feature_files = list(Path(trn_dir).glob('*.f'))
             tst_feature_files = list(Path(tst_dir).glob('*.f'))
 
