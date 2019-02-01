@@ -10,6 +10,7 @@ from features import FeatureBase
 class _201_Aggregate(FeatureBase):
     fin = os.path.join(CONST.INDIR, "new_merchant_transactions.feather")
     pref = "_201_new_agg_"
+    categorical_columns = []
 
     def create_feature_impl(self, df, random_state):
         df = pd.get_dummies(df, columns=['category_2', 'category_3'])

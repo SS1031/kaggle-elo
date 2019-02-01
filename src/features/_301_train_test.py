@@ -12,6 +12,7 @@ class _301_TrainTest(FeatureBase):
     fin = [os.path.join(CONST.INDIR, "train.feather"),
            os.path.join(CONST.INDIR, "test.feather")]
     pref = "_301_train_test_feature"
+    categorical_columns = []
 
     def create_feature_impl(self, df_list, random_state):
         feat = pd.concat([df_list[0].drop(columns="target"), df_list[1]], axis=0)

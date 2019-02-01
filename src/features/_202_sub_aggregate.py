@@ -9,6 +9,7 @@ from features import FeatureBase
 class _202_SubAggregate(FeatureBase):
     fin = os.path.join(CONST.INDIR, "new_merchant_transactions.feather")
     pref = "_202_new_subagg_"
+    categorical_columns = []
 
     @staticmethod
     def _sub_agg(df, sub_grp, agg_col):

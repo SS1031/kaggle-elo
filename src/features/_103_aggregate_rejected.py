@@ -10,6 +10,7 @@ from features import FeatureBase
 class _103_AggregateRejected(FeatureBase):
     fin = os.path.join(CONST.INDIR, "historical_transactions.feather")
     pref = "_103_hist_rjct_agg_"
+    categorical_columns = []
 
     def create_feature_impl(self, df, random_state):
         df = pd.get_dummies(df, columns=['category_2', 'category_3'])

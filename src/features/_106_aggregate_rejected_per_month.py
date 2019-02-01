@@ -10,6 +10,7 @@ from features import FeatureBase
 class _106_AggregateRejectedPerMonth(FeatureBase):
     fin = os.path.join(CONST.INDIR, "historical_transactions.feather")
     pref = "_106_hist_agg_rjct_per_mon_"
+    categorical_columns = []
 
     def create_feature_impl(self, df, random_state):
         df['month_diff'] = (CONST.DATE - df['purchase_date']).dt.days // 30

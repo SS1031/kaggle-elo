@@ -10,13 +10,11 @@ from features import FeatureBase
 class _105_AggregateAuthorizedPerMonth(FeatureBase):
     fin = os.path.join(CONST.INDIR, "historical_transactions.feather")
     pref = "_105_hist_agg_auth_per_mon_"
+    categorical_columns = []
 
     def create_feature_impl(self, df, random_state):
-<<<<<<< HEAD
         df['month_diff'] = (CONST.DATE - df['purchase_date']).dt.days // 30
         df['month_diff'] += df['month_lag']
-=======
->>>>>>> a089fa99018eb9e44652b5dadab42126ad026aa4
         df = df[df['authorized_flag'] == 1]
 
         grouped = df.groupby(['card_id', 'month_lag'])
