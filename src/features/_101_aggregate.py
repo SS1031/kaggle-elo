@@ -13,10 +13,6 @@ class _101_Aggregate(FeatureBase):
 
     def create_feature_impl(self, df, random_state):
         df = pd.get_dummies(df, columns=['category_2', 'category_3'])
-        df['month_diff'] = (CONST.DATE - df['purchase_date']).dt.days // 30
-        df['month_diff'] += df['month_lag']
-        df['purchase_month'] = df['purchase_date'].dt.month
-        df['purchase_date'] = pd.DatetimeIndex(df['purchase_date']).astype(np.int64) * 1e-9
 
         agg_func = {
             'card_id': ['size'],
@@ -36,10 +32,7 @@ class _101_Aggregate(FeatureBase):
             'subsector_id': ['nunique'],
             'purchase_amount': ['sum', 'mean', 'max', 'min', 'std'],
             'installments': ['sum', 'mean', 'max', 'min', 'std'],
-            'purchase_month': ['mean', 'max', 'min', 'std'],
-            'purchase_date': [np.ptp, 'min', 'max'],
             'month_lag': ['mean', 'max', 'min', 'std'],
-            'month_diff': ['mean'],
             'authorized_flag': ['mean'],
         }
 

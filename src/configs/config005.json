@@ -1,6 +1,10 @@
 {
   "seed": 777,
   "feature_sets": [
+    "_101_aggregate",
+    "_108_purchase_date",
+    "_201_aggregate",
+    "_208_purchase_date",
     "_301_train_test"
   ],
   "model": {

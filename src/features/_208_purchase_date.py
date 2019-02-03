@@ -10,13 +10,13 @@ from features import FeatureBase
 from features._003_feature_funcs import trigon_encode
 
 
-class _108_PurchaseDate(FeatureBase):
+class _208_PurchaseDate(FeatureBase):
     fin = [
-        os.path.join(CONST.INDIR, "historical_transactions.feather"),
+        os.path.join(CONST.INDIR, "new_merchant_transactions.feather"),
         os.path.join(CONST.INDIR, "train.feather"),
         os.path.join(CONST.INDIR, "test.feather")
     ]
-    pref = "_108_hist_purchase_date_"
+    pref = "_208_new_purchase_date_"
 
     def create_feature_impl(self, df_list, random_state):
         hist = df_list[0]
@@ -51,4 +51,4 @@ class _108_PurchaseDate(FeatureBase):
 
 
 if __name__ == '__main__':
-    trn, tst = _108_PurchaseDate().create_feature()
+    trn, tst = _208_PurchaseDate().create_feature()
