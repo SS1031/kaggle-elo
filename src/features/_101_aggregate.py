@@ -62,7 +62,6 @@ class _101_Aggregate(FeatureBase):
         agg_func['authorized_flag'] = ['mean']
         agg_func['duration'] = ['mean', 'min', 'max', 'var', 'skew']
         agg_func['amount_month_ratio'] = ['mean', 'min', 'max', 'var', 'skew']
-        print(agg_func)
 
         feat = df.groupby(['card_id']).agg(agg_func)
         feat.columns = ['-'.join(col).strip() for col in feat.columns.values]

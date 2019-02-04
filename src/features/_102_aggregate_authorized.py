@@ -12,36 +12,56 @@ class _102_AggregateAuthorized(FeatureBase):
     pref = "_102_hist_auth_agg_"
 
     def create_feature_impl(self, df, random_state):
-        df = pd.get_dummies(df, columns=['category_2', 'category_3'])
+        df = df[df.authorized_flag == 1].copy()
+
+        # fillna
+        df['category_2'].fillna(1.0, inplace=True)
+        df['category_3'].fillna('A', inplace=True)
+        df['merchant_id'].fillna('M_ID_00a6ca8a8a', inplace=True)
+        df['installments'].replace(-1, np.nan, inplace=True)
+        df['installments'].replace(999, np.nan, inplace=True)
+
+        # trim
+        df['purchase_amount'] = df['purchase_amount'].apply(lambda x: min(x, 0.8))
+
+        # additional features
+        df['price'] = df['purchase_amount'] / df['installments']
         df['month_diff'] = (CONST.DATE - df['purchase_date']).dt.days // 30
         df['month_diff'] += df['month_lag']
-        df['purchase_month'] = df['purchase_date'].dt.month
-        df['purchase_date'] = pd.DatetimeIndex(df['purchase_date']).astype(np.int64) * 1e-9
-        df = df[df['authorized_flag'] == 1]
+        df['duration'] = df['purchase_amount'] * df['month_diff']
+        df['amount_month_ratio'] = df['purchase_amount'] / df['month_diff']
 
-        agg_func = {
-            'card_id': ['size'],
-            'category_1': ['sum', 'mean'],
-            'category_2_1.0': ['mean'],
-            'category_2_2.0': ['mean'],
-            'category_2_3.0': ['mean'],
-            'category_2_4.0': ['mean'],
-            'category_2_5.0': ['mean'],
-            'category_3_A': ['mean'],
-            'category_3_B': ['mean'],
-            'category_3_C': ['mean'],
-            'merchant_id': ['nunique'],
-            'merchant_category_id': ['nunique'],
-            'state_id': ['nunique'],
-            'city_id': ['nunique'],
-            'subsector_id': ['nunique'],
-            'purchase_amount': ['sum', 'mean', 'max', 'min', 'std'],
-            'installments': ['sum', 'mean', 'max', 'min', 'std'],
-            'purchase_month': ['mean', 'max', 'min', 'std'],
-            'purchase_date': [np.ptp, 'min', 'max'],
-            'month_lag': ['mean', 'max', 'min', 'std'],
-            'month_diff': ['mean']
-        }
+        agg_func = {}
+        for col in ['category_2', 'category_3']:
+            df[col + '_mean'] = df.groupby([col])['purchase_amount'].transform('mean')
+            agg_func[col + '_mean'] = ['mean']
+
+        # get dummies
+        df = pd.get_dummies(df, columns=['category_2', 'category_3'])
+
+        agg_func['card_id'] = ['size', 'count']
+        agg_func['category_1'] = ['sum', 'mean']
+        agg_func['category_2_1.0'] = ['mean']
+        agg_func['category_2_2.0'] = ['mean']
+        agg_func['category_2_3.0'] = ['mean']
+        agg_func['category_2_4.0'] = ['mean']
+        agg_func['category_2_5.0'] = ['mean']
+        agg_func['category_3_A'] = ['mean']
+        agg_func['category_3_B'] = ['mean']
+        agg_func['category_3_C'] = ['mean']
+        agg_func['merchant_id'] = ['nunique']
+        agg_func['merchant_category_id'] = ['nunique']
+        agg_func['state_id'] = ['nunique']
+        agg_func['city_id'] = ['nunique']
+        agg_func['subsector_id'] = ['nunique']
+        agg_func['purchase_amount'] = ['sum', 'mean', 'max', 'min', 'var', 'skew']
+        agg_func['price'] = ['sum', 'mean', 'max', 'min', 'var', 'skew']
+        agg_func['installments'] = ['sum', 'mean', 'max', 'min', 'var', 'skew']
+        agg_func['month_lag'] = ['mean', 'max', 'var', 'skew']
+        agg_func['month_diff'] = ['mean', 'max', 'var', 'skew']
+        agg_func['authorized_flag'] = ['mean']
+        agg_func['duration'] = ['mean', 'min', 'max', 'var', 'skew']
+        agg_func['amount_month_ratio'] = ['mean', 'min', 'max', 'var', 'skew']
 
         feat = df.groupby(['card_id']).agg(agg_func)
         feat.columns = ['-'.join(col).strip() for col in feat.columns.values]
