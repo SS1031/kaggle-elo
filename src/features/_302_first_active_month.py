@@ -14,7 +14,7 @@ from features._003_feature_funcs import trigon_encode
 class _302_FirstActiveMonth(FeatureBase):
     fin = [os.path.join(CONST.INDIR, "train.feather"),
            os.path.join(CONST.INDIR, "test.feather")]
-    pref = "_302_first_active_month"
+    pref = "_302_first_active_month_"
     categorical_columns = []
 
     def create_feature_impl(self, df_list, random_state):
