@@ -2,8 +2,6 @@
   "seed": 777,
   "feature_sets": [
     "_101_aggregate",
-    "_102_aggregate_authorized",
-    "_103_aggregate_rejected",
     "_201_aggregate"
   ]
 }

@@ -15,6 +15,7 @@ from sklearn.metrics import mean_squared_error
 import CONST
 import utils
 from features._002_load import load_feature_sets
+from lgbm import cv_lgbm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config', default='./configs/config01.debug.json')
@@ -41,49 +42,9 @@ print(f"Categorical features={categorical_features}")
 target = utils.load_target()
 
 param = conf['model']['params']
+predictions, cv_score, mean_train_score, feature_importance_df = \
+    cv_lgbm(trn, target, features, param, tst, importance=True)
 
-folds = KFold(n_splits=5, shuffle=True, random_state=15)
-oof = np.zeros(len(trn))
-predictions = np.zeros(len(tst))
-start = time.time()
-
-feature_importance_df = pd.DataFrame()
-mean_train_score = 0
-
-for fold_, (trn_idx, val_idx) in enumerate(folds.split(trn.values, target.values)):
-    print("fold n={}".format(fold_ + 1))
-    trn_data = lgb.Dataset(
-        trn.iloc[trn_idx][features],
-        label=target.iloc[trn_idx],
-        categorical_feature=categorical_features
-    )
-
-    val_data = lgb.Dataset(
-        trn.iloc[val_idx][features],
-        label=target.iloc[val_idx],
-        categorical_feature=categorical_features
-    )
-
-    regr = lgb.train(param,
-                     trn_data,
-                     num_boost_round=10000,
-                     valid_sets=[trn_data, val_data],
-                     verbose_eval=100,
-                     early_stopping_rounds=50)
-
-    oof[val_idx] = regr.predict(trn.iloc[val_idx][features], num_iteration=regr.best_iteration)
-
-    fold_importance_df = pd.DataFrame()
-    fold_importance_df["feature"] = features
-    fold_importance_df["importance"] = regr.feature_importance()
-    fold_importance_df["fold"] = fold_ + 1
-    feature_importance_df = pd.concat([feature_importance_df, fold_importance_df], axis=0)
-
-    mean_train_score += regr.best_score['training']['rmse'] / folds.n_splits
-    predictions += regr.predict(tst[features], num_iteration=regr.best_iteration) / folds.n_splits
-
-cv_score = mean_squared_error(oof, target) ** 0.5
-print("CV score: {:<8.5f}".format(cv_score))
 result_summary = pd.DataFrame({"config": [options.config],
                                "mean_train_score": [mean_train_score],
                                "cv_score": [cv_score]})
@@ -91,7 +52,7 @@ result_summary = pd.DataFrame({"config": [options.config],
 cols = (feature_importance_df[["feature", "importance"]]
         .groupby("feature")
         .mean()
-        .sort_values(by="importance", ascending=False)[:1000].index)
+        .sort_values(by="importance", ascending=False)[:200].index)
 best_features = feature_importance_df.loc[feature_importance_df.feature.isin(cols)]
 plt.figure(figsize=(14, 25))
 sns.barplot(x="importance",

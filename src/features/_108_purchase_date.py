@@ -34,9 +34,9 @@ class _108_PurchaseDate(FeatureBase):
         hist = pd.concat([hist, trigon_encode(hist[['purchase_hour']].copy(), 'purchase_hour')], axis=1)
         hist = pd.concat([hist, trigon_encode(hist[['purchase_woy']].copy(), 'purchase_woy')], axis=1)
         hist = pd.concat([hist, trigon_encode(hist[['purchase_dow']].copy(), 'purchase_dow')], axis=1)
-        hist['purchase_date'] = pd.DatetimeIndex(hist['purchase_date']).astype(np.int64) * 1e-9
 
         # first_active_monthとの差分
+        hist['purchase_date'] = pd.DatetimeIndex(hist['purchase_date']).astype(np.int64) * 1e-9
         hist['diff_fam-purchase_date'] = (hist['purchase_date'] - hist['first_active_month'].astype(int) * 1e-9)
 
         agg_func = {
