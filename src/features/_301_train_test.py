@@ -18,15 +18,16 @@ class _301_TrainTest(FeatureBase):
     def create_feature_impl(self, df_list, random_state):
         feat = pd.concat([df_list[0].drop(columns="target"), df_list[1]], axis=0)
 
+        # feature calculation
+        feat['feature_sum'] = feat['feature_1'] + feat['feature_2'] + feat['feature_3']
+        feat['feature_mean'] = feat['feature_sum'] / 3
+        feat['feature_max'] = feat[['feature_1', 'feature_2', 'feature_3']].max(axis=1)
+        feat['feature_min'] = feat[['feature_1', 'feature_2', 'feature_3']].min(axis=1)
+        feat['feature_std'] = feat[['feature_1', 'feature_2', 'feature_3']].std(axis=1)
+
         feat['feature_1'] = feat['feature_1'].astype('str').astype('category')
         feat['feature_2'] = feat['feature_2'].astype('str').astype('category')
         feat['feature_3'] = feat['feature_3'].astype('str').astype('category')
-        feat['fa_dayofweek'] = feat['first_active_month'].dt.dayofweek
-        feat = pd.concat([feat, trigon_encode(feat[['fa_dayofweek']].copy(), 'fa_dayofweek')], axis=1)
-        feat['fa_weekofyear'] = feat['first_active_month'].dt.weekofyear
-        feat['fa_month'] = feat['first_active_month'].dt.month
-        feat = pd.concat([feat, trigon_encode(feat[['fa_month']].copy(), 'fa_month')], axis=1)
-        feat['fa_elapsed_time'] = (CONST.DATE - feat['first_active_month']).dt.days
 
         feat.drop(columns=['first_active_month'], inplace=True)
 

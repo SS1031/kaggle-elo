@@ -25,9 +25,14 @@ class _108_PurchaseDate(FeatureBase):
         hist = hist.merge(train_test[['card_id', 'first_active_month']], on='card_id', how='left')
 
         hist['purchase_month'] = hist['purchase_date'].dt.month
-        hist['purchase_dow'] = hist['purchase_date'].dt.month
+        hist['purchase_day'] = hist['purchase_date'].dt.day
+        hist['purchase_hour'] = hist['purchase_date'].dt.day
+        hist['purchase_woy'] = hist['purchase_date'].dt.weekofyear
+        hist['purchase_dow'] = hist['purchase_date'].dt.dayofweek
 
         hist = pd.concat([hist, trigon_encode(hist[['purchase_month']].copy(), 'purchase_month')], axis=1)
+        hist = pd.concat([hist, trigon_encode(hist[['purchase_hour']].copy(), 'purchase_hour')], axis=1)
+        hist = pd.concat([hist, trigon_encode(hist[['purchase_woy']].copy(), 'purchase_woy')], axis=1)
         hist = pd.concat([hist, trigon_encode(hist[['purchase_dow']].copy(), 'purchase_dow')], axis=1)
         hist['purchase_date'] = pd.DatetimeIndex(hist['purchase_date']).astype(np.int64) * 1e-9
 

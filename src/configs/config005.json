@@ -5,7 +5,8 @@
     "_108_purchase_date",
     "_201_aggregate",
     "_208_purchase_date",
-    "_301_train_test"
+    "_301_train_test",
+    "_302_first_active_month"
   ],
   "model": {
     "name": "lgbm",

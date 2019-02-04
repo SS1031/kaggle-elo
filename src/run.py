@@ -34,6 +34,10 @@ trn, tst = load_feature_sets(conf['feature_sets'])
 features = [c for c in trn.columns if c not in ['card_id', 'first_active_month']]
 categorical_features = trn.dtypes[trn.dtypes == 'category'].index.tolist()
 
+print(f"Train dataset shape ={trn.shape}")
+print(f"Test dataset shape  ={tst.shape}")
+print(f"Categorical features={categorical_features}")
+
 target = utils.load_target()
 
 param = conf['model']['params']
