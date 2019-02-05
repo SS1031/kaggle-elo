@@ -6,5 +6,6 @@ INDIR = "../data/inputs/"
 OUTDIR = "../data/outputs/"
 TRNFEATDIR = "../data/features/trn/"
 TSTFEATDIR = "../data/features/tst/"
+SELECTION = "../data/features/selection/"
 SUMMARY = "../data/outputs/result_summary.csv"
 DATE = datetime.datetime(2018, 5, 1)
