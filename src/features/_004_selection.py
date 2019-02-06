@@ -35,6 +35,7 @@ import seaborn as sns
 import warnings
 
 warnings.simplefilter('ignore', UserWarning)
+plt.style.use('seaborn')
 
 import gc
 
@@ -82,6 +83,30 @@ def get_feature_importances(trn, y, shuffle, seed=None):
     return imp_df
 
 
+def display_distributions(actual_imp_df_, null_imp_df_, feature_):
+    plt.figure(figsize=(13, 6))
+    gs = gridspec.GridSpec(1, 2)
+    # Plot Split importances
+    ax = plt.subplot(gs[0, 0])
+    a = ax.hist(null_imp_df_.loc[null_imp_df_['feature'] == feature_, 'importance_split'].values,
+                label='Null importances')
+    ax.vlines(
+        x=actual_imp_df_.loc[actual_imp_df_['feature'] == feature_, 'importance_split'].mean(),
+        ymin=0, ymax=np.max(a[0]), color='r', linewidth=10, label='Real Target')
+    ax.legend()
+    ax.set_title('Split Importance of %s' % feature_.upper(), fontweight='bold')
+    plt.xlabel('Null Importance (split) Distribution for %s ' % feature_.upper())
+    # Plot Gain importances
+    ax = plt.subplot(gs[0, 1])
+    a = ax.hist(null_imp_df_.loc[null_imp_df_['feature'] == feature_, 'importance_gain'].values,
+                label='Null importances')
+    ax.vlines(x=actual_imp_df_.loc[actual_imp_df_['feature'] == feature_, 'importance_gain'].mean(),
+              ymin=0, ymax=np.max(a[0]), color='r', linewidth=10, label='Real Target')
+    ax.legend()
+    ax.set_title('Gain Importance of %s' % feature_.upper(), fontweight='bold')
+    plt.xlabel('Null Importance (gain) Distribution for %s ' % feature_.upper())
+
+
 # Seed the unexpected randomness of this world
 np.random.seed(123)
 # Get the actual importance, i.e. without shuffling
@@ -101,3 +126,8 @@ for i in tqdm(range(nb_runs)):
 
     # Concat the latest importances with the old ones
     null_imp_df = pd.concat([null_imp_df, imp_df], axis=0)
+
+print(features[0])
+display_distributions(actual_imp_df, null_imp_df, features[0])
+
+
