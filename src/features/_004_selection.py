@@ -105,6 +105,7 @@ def display_distributions(actual_imp_df_, null_imp_df_, feature_):
     ax.legend()
     ax.set_title('Gain Importance of %s' % feature_.upper(), fontweight='bold')
     plt.xlabel('Null Importance (gain) Distribution for %s ' % feature_.upper())
+    plt.show()
 
 
 # Seed the unexpected randomness of this world
@@ -113,7 +114,7 @@ np.random.seed(123)
 features = [c for c in trn.columns if c not in ['card_id', 'first_active_month']]
 actual_imp_df = get_feature_importances(trn[features], target, shuffle=False)
 null_imp_df = pd.DataFrame()
-nb_runs = 80
+nb_runs = 40
 
 import time
 
@@ -127,7 +128,35 @@ for i in tqdm(range(nb_runs)):
     # Concat the latest importances with the old ones
     null_imp_df = pd.concat([null_imp_df, imp_df], axis=0)
 
-print(features[0])
-display_distributions(actual_imp_df, null_imp_df, features[0])
+print(features[1])
+display_distributions(actual_imp_df, null_imp_df, features[1])
 
+feature_scores = []
+for _f in actual_imp_df['feature'].unique():
+    f_null_imps_gain = null_imp_df.loc[null_imp_df['feature'] == _f, 'importance_gain'].values
+    f_act_imps_gain = actual_imp_df.loc[actual_imp_df['feature'] == _f, 'importance_gain'].mean()
+    gain_score = np.log(1e-10 + f_act_imps_gain / (1 + np.percentile(f_null_imps_gain, 75)))  # Avoid didvide by zero
+    f_null_imps_split = null_imp_df.loc[null_imp_df['feature'] == _f, 'importance_split'].values
+    f_act_imps_split = actual_imp_df.loc[actual_imp_df['feature'] == _f, 'importance_split'].mean()
+    split_score = np.log(1e-10 + f_act_imps_split / (1 + np.percentile(f_null_imps_split, 75)))  # Avoid didvide by zero
+    feature_scores.append((_f, split_score, gain_score))
 
+scores_df = pd.DataFrame(feature_scores, columns=['feature', 'split_score', 'gain_score'])
+
+plt.figure(figsize=(16, 16))
+gs = gridspec.GridSpec(1, 2)
+# Plot Split importances
+ax = plt.subplot(gs[0, 0])
+sns.barplot(x='split_score', y='feature', data=scores_df.sort_values('split_score', ascending=False).iloc[0:70], ax=ax)
+ax.set_title('Feature scores wrt split importances', fontweight='bold', fontsize=14)
+# Plot Gain importances
+ax = plt.subplot(gs[0, 1])
+sns.barplot(x='gain_score', y='feature', data=scores_df.sort_values('gain_score', ascending=False).iloc[0:70], ax=ax)
+ax.set_title('Feature scores wrt gain importances', fontweight='bold', fontsize=14)
+plt.tight_layout()
+plt.show()
+
+config_name = os.path.basename(options.config).replace(".json", "")
+os.makedirs(f'../data/featues/selection/{config_name}/')
+null_imp_df.to_csv(f'../data/featues/selection/{config_name}/null_importances_distribution_lgb.csv')
+actual_imp_df.to_csv(f'../data/feature/selection/{config_name}/actual_importances_ditribution_lgb.csv')
