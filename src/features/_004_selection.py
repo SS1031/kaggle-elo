@@ -160,3 +160,57 @@ config_name = os.path.basename(options.config).replace(".json", "")
 os.makedirs(f'../data/featues/selection/{config_name}/')
 null_imp_df.to_csv(f'../data/featues/selection/{config_name}/null_importances_distribution_lgb.csv')
 actual_imp_df.to_csv(f'../data/feature/selection/{config_name}/actual_importances_ditribution_lgb.csv')
+
+feature_scores = []
+for _f in actual_imp_df['feature'].unique():
+    f_null_imps_gain = null_imp_df.loc[null_imp_df['feature'] == _f, 'importance_gain'].values
+    f_act_imps_gain = actual_imp_df.loc[actual_imp_df['feature'] == _f, 'importance_gain'].mean()
+    gain_score = np.log(1e-10 + f_act_imps_gain / (1 + np.percentile(f_null_imps_gain, 75)))  # Avoid didvide by zero
+    f_null_imps_split = null_imp_df.loc[null_imp_df['feature'] == _f, 'importance_split'].values
+    f_act_imps_split = actual_imp_df.loc[actual_imp_df['feature'] == _f, 'importance_split'].mean()
+    split_score = np.log(1e-10 + f_act_imps_split / (1 + np.percentile(f_null_imps_split, 75)))  # Avoid didvide by zero
+    feature_scores.append((_f, split_score, gain_score))
+
+scores_df = pd.DataFrame(feature_scores, columns=['feature', 'split_score', 'gain_score'])
+
+plt.figure(figsize=(16, 16))
+gs = gridspec.GridSpec(1, 2)
+# Plot Split importances
+ax = plt.subplot(gs[0, 0])
+sns.barplot(x='split_score', y='feature', data=scores_df.sort_values('split_score', ascending=False).iloc[0:70], ax=ax)
+ax.set_title('Feature scores wrt split importances', fontweight='bold', fontsize=14)
+# Plot Gain importances
+ax = plt.subplot(gs[0, 1])
+sns.barplot(x='gain_score', y='feature', data=scores_df.sort_values('gain_score', ascending=False).iloc[0:70], ax=ax)
+ax.set_title('Feature scores wrt gain importances', fontweight='bold', fontsize=14)
+plt.tight_layout()
+plt.show()
+
+correlation_scores = []
+for _f in actual_imp_df['feature'].unique():
+    f_null_imps = null_imp_df.loc[null_imp_df['feature'] == _f, 'importance_gain'].values
+    f_act_imps = actual_imp_df.loc[actual_imp_df['feature'] == _f, 'importance_gain'].values
+    gain_score = 100 * (f_null_imps < np.percentile(f_act_imps, 25)).sum() / f_null_imps.size
+    f_null_imps = null_imp_df.loc[null_imp_df['feature'] == _f, 'importance_split'].values
+    f_act_imps = actual_imp_df.loc[actual_imp_df['feature'] == _f, 'importance_split'].values
+    split_score = 100 * (f_null_imps < np.percentile(f_act_imps, 25)).sum() / f_null_imps.size
+    correlation_scores.append((_f, split_score, gain_score))
+
+corr_scores_df = pd.DataFrame(correlation_scores, columns=['feature', 'split_score', 'gain_score'])
+
+fig = plt.figure(figsize=(16, 16))
+gs = gridspec.GridSpec(1, 2)
+# Plot Split importances
+ax = plt.subplot(gs[0, 0])
+sns.barplot(x='split_score', y='feature', data=corr_scores_df.sort_values('split_score', ascending=False).iloc[0:70],
+            ax=ax)
+ax.set_title('Feature scores wrt split importances', fontweight='bold', fontsize=14)
+# Plot Gain importances
+ax = plt.subplot(gs[0, 1])
+sns.barplot(x='gain_score', y='feature', data=corr_scores_df.sort_values('gain_score', ascending=False).iloc[0:70],
+            ax=ax)
+ax.set_title('Feature scores wrt gain importances', fontweight='bold', fontsize=14)
+plt.tight_layout()
+plt.suptitle("Features' split and gain scores", fontweight='bold', fontsize=16)
+fig.subplots_adjust(top=0.93)
+plt.show()
