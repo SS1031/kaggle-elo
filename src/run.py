@@ -19,8 +19,8 @@ from lgbm import cv_lgbm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config', default='./configs/config001.debug.json')
-parser.add_argument('--debug', default='False')
 parser.add_argument('--tuning', action='store_true')
+parser.add_argument('--selected', default='False')
 options = parser.parse_args()
 
 with open(options.config, "r") as fp:
@@ -31,7 +31,8 @@ config_name = os.path.basename(options.config).replace(".json", "")
 SEED = conf['seed']
 np.random.seed(SEED)
 
-trn, tst = load_feature_sets(conf['feature_sets'])
+selected = options.selected != 'False'
+trn, tst = load_feature_sets(options.config, selected)
 features = [c for c in trn.columns if c not in ['card_id', 'first_active_month']]
 categorical_features = trn.dtypes[trn.dtypes == 'category'].index.tolist()
 
@@ -42,6 +43,7 @@ print(f"Categorical features={categorical_features}")
 target = utils.load_target()
 
 param = conf['model']['params']
+
 predictions, cv_score, mean_train_score, feature_importance_df = \
     cv_lgbm(trn, target, features, param, tst, importance=True)
 

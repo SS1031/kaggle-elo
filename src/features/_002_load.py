@@ -1,8 +1,12 @@
+import os
 import gc
+import json
 import pandas as pd
 import multiprocessing
 from multiprocessing.pool import Pool
+from collections import OrderedDict
 
+import CONST
 import utils
 from features._001_mapper import MAPPER
 import pprint
@@ -32,7 +36,10 @@ def load_feature_paths(feature_sets):
     return trn_paths, tst_paths
 
 
-def load_feature_sets(feature_sets):
+def load_feature_sets(conf_file, selected=False):
+    with open(conf_file, "r") as fp:
+        feature_sets = json.load(fp, object_pairs_hook=OrderedDict)['feature_sets']
+
     trn_paths, tst_paths = load_feature_paths(feature_sets)
 
     with Pool(multiprocessing.cpu_count()) as p:
@@ -57,6 +64,14 @@ def load_feature_sets(feature_sets):
 
     if set(trn.columns) != set(tst.columns):
         raise Exception(f"difference columns!: {set(trn.columns).symmetric_difference(set(tst.columns))}")
+
+    if selected:
+        config_name = os.path.basename(conf_file).replace(".json", "")
+        selection_file = os.path.join(CONST.SELECTION, f'{config_name}/', 'selected_features.csv')
+        assert os.path.exists(selection_file)
+        selected_features = pd.read_csv(selection_file)['features'].values.tolist()
+        trn = trn[['card_id'] + selected_features]
+        tst = tst[['card_id'] + selected_features]
 
     return trn, tst
 
