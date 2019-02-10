@@ -76,6 +76,7 @@ def get_feature_importances(trn, y, shuffle, seed=None):
     # Fit the model
     regr = lgb.train(params=lgb_params,
                      train_set=dtrain,
+                     valid_sets=[dtrain],
                      verbose_eval=300,
                      num_boost_round=300)
 

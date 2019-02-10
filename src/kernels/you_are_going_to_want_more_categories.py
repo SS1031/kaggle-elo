@@ -38,8 +38,7 @@ df_hist_trans['category_1'] = df_hist_trans['category_1'].map({'Y': 1, 'N': 0})
 
 
 def aggregate_transactions(trans, prefix):
-    trans.loc[:, 'purchase_date'] = pd.DatetimeIndex(trans['purchase_date']). \
-                                        astype(np.int64) * 1e-9
+    trans.loc[:, 'purchase_date'] = pd.DatetimeIndex(trans['purchase_date']).astype(np.int64) * 1e-9
 
     agg_func = {
         'authorized_flag': ['sum', 'mean'],
