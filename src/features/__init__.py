@@ -51,7 +51,7 @@ class FeatureBase:
     def create_feature(self, random_state=None, devmode=False):
         trn_dir, tst_dir = self.get_feature_dir(random_state)
 
-        if os.path.exists(trn_dir) and os.path.exists(tst_dir):
+        if os.path.exists(trn_dir) and os.path.exists(tst_dir) and devmode is False:
             print(
                 "There are cache dir for feature [{}] (train_cache_dir=[{}], test_cache_dir=[{}])".format(
                     self.__class__.__name__, trn_dir, tst_dir)

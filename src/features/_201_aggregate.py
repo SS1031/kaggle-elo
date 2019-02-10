@@ -36,26 +36,25 @@ class _201_Aggregate(FeatureBase):
 
         agg_func = {}
         for col in ['category_2', 'category_3']:
-            df[col + '_mean'] = df.groupby([col])['purchase_amount'].transform('mean')
-            df[col + '_min'] = df.groupby([col])['purchase_amount'].transform('min')
-            df[col + '_max'] = df.groupby([col])['purchase_amount'].transform('max')
-            df[col + '_sum'] = df.groupby([col])['purchase_amount'].transform('sum')
-            df[col + '_std'] = df.groupby([col])['purchase_amount'].transform('std')
-            agg_func[col + '_mean'] = ['mean']
+            df[col + '_pa_mean'] = df.groupby([col])['purchase_amount'].transform('mean')
+            df[col + '_pa_min'] = df.groupby([col])['purchase_amount'].transform('min')
+            df[col + '_pa_max'] = df.groupby([col])['purchase_amount'].transform('max')
+            df[col + '_pa_sum'] = df.groupby([col])['purchase_amount'].transform('sum')
+            df[col + '_pa_std'] = df.groupby([col])['purchase_amount'].transform('std')
+            agg_func[col + '_pa_mean'] = ['mean']
+            agg_func[col + '_pa_min'] = ['mean']
+            agg_func[col + '_pa_max'] = ['mean']
+            agg_func[col + '_pa_sum'] = ['mean']
+            agg_func[col + '_pa_std'] = ['mean']
 
         # get dummies
-        df = pd.get_dummies(df, columns=['category_2', 'category_3'])
+        # df = pd.get_dummies(df, columns=['category_2', 'category_3'])
+        df['category_3'] = df['category_3'].map({'A': 0, 'B': 1, 'C': 2}).astype(int)
 
         agg_func['card_id'] = ['size', 'count']
         agg_func['category_1'] = ['sum', 'mean']
-        agg_func['category_2_1.0'] = ['mean']
-        agg_func['category_2_2.0'] = ['mean']
-        agg_func['category_2_3.0'] = ['mean']
-        agg_func['category_2_4.0'] = ['mean']
-        agg_func['category_2_5.0'] = ['mean']
-        agg_func['category_3_A'] = ['mean']
-        agg_func['category_3_B'] = ['mean']
-        agg_func['category_3_C'] = ['mean']
+        agg_func['category_2'] = ['mean']
+        agg_func['category_3'] = ['mean']
         agg_func['isnull_category_2'] = ['sum', 'mean']
         agg_func['isnull_category_3'] = ['sum', 'mean']
         agg_func['merchant_id'] = ['nunique']
@@ -75,7 +74,6 @@ class _201_Aggregate(FeatureBase):
 
         feat = df.groupby(['card_id']).agg(agg_func)
         feat.columns = ['-'.join(col).strip() for col in feat.columns.values]
-
         return feat.reset_index()
 
 

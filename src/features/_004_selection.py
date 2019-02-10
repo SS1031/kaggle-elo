@@ -152,7 +152,7 @@ def score_feature_selection(trn, features, target):
     lgb_params = conf['model']['params']
 
     oof = np.zeros(len(trn))
-    folds = StratifiedKFold(n_splits=9, shuffle=True, random_state=15)
+    folds = StratifiedKFold(n_splits=4, shuffle=True, random_state=15)
     for fold_, (trn_idx, val_idx) in enumerate(folds.split(trn, trn.target_outlier.values)):
         print("fold n={}".format(fold_ + 1))
         trn_data = lgb.Dataset(
@@ -182,26 +182,33 @@ def score_feature_selection(trn, features, target):
 
 # Seed the unexpected randomness of this world
 np.random.seed(123)
-
-# Get the actual importance, i.e. without shuffling
-features = [c for c in trn.columns if c not in ['card_id', 'first_active_month', 'target_outlier']]
-actual_imp_df = get_feature_importances(trn[features], target, shuffle=False)
-null_imp_df = pd.DataFrame()
-nb_runs = 40
-for i in tqdm(range(nb_runs)):
-    # Get current run importances
-    imp_df = get_feature_importances(trn[features], target, shuffle=True)
-    imp_df['run'] = i + 1
-
-    # Concat the latest importances with the old ones
-    null_imp_df = pd.concat([null_imp_df, imp_df], axis=0)
-
 config_name = os.path.basename(options.config).replace(".json", "")
 _dir = CONST.SELECTION + f'{config_name}/'
 if not os.path.exists(_dir):
     os.makedirs(_dir)
-null_imp_df.to_csv(os.path.join(_dir, 'null_importances_distribution_lgb.csv'), index=False)
-actual_imp_df.to_csv(os.path.join(_dir, 'actual_importances_ditribution_lgb.csv'), index=False)
+
+# Get the actual importance, i.e. without shuffling
+features = [c for c in trn.columns if c not in ['card_id', 'first_active_month', 'target_outlier']]
+act_imp_path = os.path.join(_dir, 'actual_importances_ditribution_lgb.csv')
+null_imp_path = os.path.join(_dir, 'null_importances_distribution_lgb.csv')
+
+if os.path.exists(act_imp_path) and os.path.exists(null_imp_path):
+    actual_imp_df = pd.read_csv(act_imp_path)
+    null_imp_df = pd.read_csv(null_imp_path)
+else:
+    actual_imp_df = get_feature_importances(trn[features], target, shuffle=False)
+    null_imp_df = pd.DataFrame()
+    nb_runs = 40
+    for i in tqdm(range(nb_runs)):
+        # Get current run importances
+        imp_df = get_feature_importances(trn[features], target, shuffle=True)
+        imp_df['run'] = i + 1
+
+        # Concat the latest importances with the old ones
+        null_imp_df = pd.concat([null_imp_df, imp_df], axis=0)
+
+    null_imp_df.to_csv(null_imp_path, index=False)
+    actual_imp_df.to_csv(act_imp_path, index=False)
 
 display_distributions(actual_imp_df, null_imp_df, features[1])
 scores_df = calc_feature_scores(actual_imp_df, null_imp_df)
