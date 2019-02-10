@@ -210,11 +210,11 @@ del train_df['target']
 ##model params
 logger.info('Prepare model')
 param = {
-    'num_leaves': 51,
-    'min_data_in_leaf': 35,
-    'objective': 'regression',
-    'max_depth': -1,
-    'learning_rate': 0.008,
+    "num_leaves": 51,
+    "min_data_in_leaf": 35,
+    "objective": "regression",
+    "max_depth": -1,
+    "learning_rate": 0.008,
     "boosting": "gbdt",
     "feature_fraction": 0.85,
     "bagging_freq": 1,

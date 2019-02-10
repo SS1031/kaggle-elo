@@ -73,6 +73,9 @@ def load_feature_sets(conf_file, selected=False):
         trn = trn[['card_id'] + selected_features]
         tst = tst[['card_id'] + selected_features]
 
+    print(f"Train dataset shape ={trn.shape}")
+    print(f"Test dataset shape  ={tst.shape}")
+
     return trn, tst
 
 

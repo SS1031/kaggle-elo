@@ -17,6 +17,7 @@ import argparse
 import numpy as np
 import pandas as pd
 
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import mean_squared_error
 
 import CONST
@@ -55,6 +56,11 @@ with open(options.config, "r") as fp:
 trn, tst = load_feature_sets(options.config)
 target = utils.load_target()
 
+trn = pd.concat([target, trn], axis=1)
+trn['target_outlier'] = 0
+trn.loc[(trn.target < -30), 'target_outlier'] = 1
+trn.drop(columns=['target'], inplace=True)
+
 
 def get_feature_importances(trn, y, shuffle, seed=None):
     # Gather real features
@@ -70,7 +76,7 @@ def get_feature_importances(trn, y, shuffle, seed=None):
     # Fit the model
     regr = lgb.train(params=lgb_params,
                      train_set=dtrain,
-                     verbose_eval=False,
+                     verbose_eval=300,
                      num_boost_round=300)
 
     # Get feature importances
@@ -141,33 +147,44 @@ def calc_correlation_scores(actual_imp_df, null_imp_df):
     return corr_scores_df, correlation_scores
 
 
-def score_feature_selection(trn, target):
+def score_feature_selection(trn, features, target):
     # Fit LightGBM
-    dtrain = lgb.Dataset(trn, target, free_raw_data=False, silent=True)
     lgb_params = conf['model']['params']
 
-    # Fit the model
-    hist = lgb.cv(
-        params=lgb_params,
-        train_set=dtrain,
-        num_boost_round=300,
-        metrics='rmse',
-        stratified=False,
-        nfold=5,
-        verbose_eval=150,
-        shuffle=True,
-        seed=conf['seed']
-    )
+    oof = np.zeros(len(trn))
+    folds = StratifiedKFold(n_splits=9, shuffle=True, random_state=15)
+    for fold_, (trn_idx, val_idx) in enumerate(folds.split(trn, trn.target_outlier.values)):
+        print("fold n={}".format(fold_ + 1))
+        trn_data = lgb.Dataset(
+            trn.iloc[trn_idx][features],
+            label=target.iloc[trn_idx],
+        )
 
-    # Return the last mean / std values
-    return hist['rmse-mean'][-1], hist['rmse-stdv'][-1]
+        val_data = lgb.Dataset(
+            trn.iloc[val_idx][features],
+            label=target.iloc[val_idx],
+        )
+
+        regr = lgb.train(lgb_params,
+                         trn_data,
+                         num_boost_round=300,
+                         valid_sets=[trn_data, val_data],
+                         verbose_eval=150,
+                         early_stopping_rounds=50)
+
+        oof[val_idx] = regr.predict(trn.iloc[val_idx][features], num_iteration=regr.best_iteration)
+
+    cv_score = mean_squared_error(oof, target) ** 0.5
+    print("CV score: {:<8.5f}".format(cv_score))
+
+    return cv_score
 
 
 # Seed the unexpected randomness of this world
 np.random.seed(123)
 
 # Get the actual importance, i.e. without shuffling
-features = [c for c in trn.columns if c not in ['card_id', 'first_active_month']]
+features = [c for c in trn.columns if c not in ['card_id', 'first_active_month', 'target_outlier']]
 actual_imp_df = get_feature_importances(trn[features], target, shuffle=False)
 null_imp_df = pd.DataFrame()
 nb_runs = 40
@@ -228,15 +245,13 @@ for th in threshold:
     # gain_cat_feats = [_f for _f, _, _score in correlation_scores if (_score >= th)]
 
     print('Results for threshold %3d' % th)
-    split_mean, split_stdv = score_feature_selection(trn[split_feats], target=target)
+    split_mean = score_feature_selection(trn, features=split_feats, target=target)
     split_results.append(split_mean)
     print(f'\t Split selection features={len(split_feats)}')
-    print('\t SPLIT : %.6f +/- %.6f' % (split_mean, split_stdv))
 
-    gain_mean, gain_stdv = score_feature_selection(trn[gain_feats], target=target)
+    gain_mean = score_feature_selection(trn, features=gain_feats, target=target)
     gain_results.append(gain_mean)
     print(f'\t Gain selection features={len(split_feats)}')
-    print('\t GAIN  : %.6f +/- %.6f' % (gain_mean, gain_stdv))
 
 result = pd.DataFrame({'threshold': threshold, 'split_result': split_results, 'gain_result': gain_results})
 result.to_csv(os.path.join(_dir, 'threshold_result.csv'), index=False)
