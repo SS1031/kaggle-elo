@@ -18,7 +18,7 @@ def load_feature_path(feature_set):
 
 
 def load_feature(path):
-    print("load > ", path)
+    print(f"load > {path}\n")
     return pd.read_feather(path)
 
 

@@ -7,7 +7,7 @@ import numpy as np
 import lightgbm as lgb
 
 from collections import OrderedDict
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import mean_squared_error
 
 import utils
@@ -21,20 +21,21 @@ def cv_lgbm(trn, target, features, param, tst=None, importance=False):
     mean_train_score = 0
     oof = np.zeros(len(trn))
     feature_importance_df = pd.DataFrame()
-    folds = KFold(n_splits=5, shuffle=True, random_state=15)
+    # folds = KFold(n_splits=5, shuffle=True, random_state=15)
 
-    for fold_, (trn_idx, val_idx) in enumerate(folds.split(trn.values, target.values)):
+    folds = StratifiedKFold(n_splits=9, shuffle=True, random_state=15)
+
+    for fold_, (trn_idx, val_idx) in enumerate(folds.split(trn, trn.target_outlier.values)):
+
         print("fold n={}".format(fold_ + 1))
         trn_data = lgb.Dataset(
             trn.iloc[trn_idx][features],
             label=target.iloc[trn_idx],
-            # categorical_feature=categorical_features
         )
 
         val_data = lgb.Dataset(
             trn.iloc[val_idx][features],
             label=target.iloc[val_idx],
-            # categorical_feature=categorical_features
         )
 
         regr = lgb.train(param,

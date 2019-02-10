@@ -29,6 +29,7 @@ class _108_PurchaseDate(FeatureBase):
         hist['purchase_hour'] = hist['purchase_date'].dt.day
         hist['purchase_woy'] = hist['purchase_date'].dt.weekofyear
         hist['purchase_dow'] = hist['purchase_date'].dt.dayofweek
+        hist['purchase_weekend'] = (hist.purchase_date.dt.weekday >= 5).astype(int)
 
         hist = pd.concat([hist, trigon_encode(hist[['purchase_month']].copy(), 'purchase_month')], axis=1)
         hist = pd.concat([hist, trigon_encode(hist[['purchase_hour']].copy(), 'purchase_hour')], axis=1)
@@ -40,6 +41,7 @@ class _108_PurchaseDate(FeatureBase):
         hist['diff_fam-purchase_date'] = (hist['purchase_date'] - hist['first_active_month'].astype(int) * 1e-9)
 
         agg_func = {
+            'card_id': ['size'],
             # ptp = (Range of values (maximum - minimum) along an axis.)
             'purchase_date': [np.ptp, 'min', 'max', 'mean', 'std'],
             'diff_fam-purchase_date': [np.ptp, 'min', 'max', 'mean', 'std', 'median'],
@@ -47,10 +49,16 @@ class _108_PurchaseDate(FeatureBase):
             'purchase_month_cos': ['min', 'max', 'mean', 'std'],
             'purchase_dow_sin': ['min', 'max', 'mean', 'std'],
             'purchase_dow_cos': ['min', 'max', 'mean', 'std'],
+            'purchase_weekend': ['sum', 'mean'],
         }
 
         feat = hist.groupby(['card_id']).agg(agg_func)
         feat.columns = ['-'.join(col).strip() for col in feat.columns.values]
+        feat['purchase_date-ave-ptp'] = feat['purchase_date-ptp'] / feat['card_id-size']
+        _date = (pd.DatetimeIndex([CONST.DATE]).astype(np.int64) * 1e-9)[0]
+        feat['hist_purchase_date-uptomax'] = _date - feat['purchase_date-max']
+        feat['hist_purchase_date_uptomin'] = _date - feat['purchase_date-min']
+        feat.drop(columns=['card_id-size'], inplace=True)
 
         return feat.reset_index()
 

@@ -33,14 +33,18 @@ np.random.seed(SEED)
 
 selected = options.selected != 'False'
 trn, tst = load_feature_sets(options.config, selected)
-features = [c for c in trn.columns if c not in ['card_id', 'first_active_month']]
-categorical_features = trn.dtypes[trn.dtypes == 'category'].index.tolist()
+target = utils.load_target()
+
+trn = pd.concat([target, trn], axis=1)
+trn['target_outlier'] = 0
+trn.loc[(trn.target < -30), 'target_outlier'] = 1
+trn.drop(columns=['target'], inplace=True)
+print("Outliers: {}".format(trn['target_outlier'].value_counts()))
+
+features = [c for c in trn.columns if c not in ['card_id', 'first_active_month', 'target_outlier']]
 
 print(f"Train dataset shape ={trn.shape}")
 print(f"Test dataset shape  ={tst.shape}")
-print(f"Categorical features={categorical_features}")
-
-target = utils.load_target()
 
 param = conf['model']['params']
 
