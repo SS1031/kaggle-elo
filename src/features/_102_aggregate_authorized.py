@@ -14,12 +14,17 @@ class _102_AggregateAuthorized(FeatureBase):
     def create_feature_impl(self, df, random_state):
         df = df[df.authorized_flag == 1].copy()
 
+        # NA binary
+        df['isnull_category_2'] = df['category_2'].isnull().astype(int)
+        df['isnull_category_3'] = df['category_3'].isnull().astype(int)
+
         # fillna
         df['category_2'].fillna(1.0, inplace=True)
         df['category_3'].fillna('A', inplace=True)
         df['merchant_id'].fillna('M_ID_00a6ca8a8a', inplace=True)
         df['installments'].replace(-1, np.nan, inplace=True)
         df['installments'].replace(999, np.nan, inplace=True)
+        df['isnull_installments'] = df['installments'].isnull().astype(int)
 
         # trim
         df['purchase_amount'] = df['purchase_amount'].apply(lambda x: min(x, 0.8))
@@ -33,22 +38,27 @@ class _102_AggregateAuthorized(FeatureBase):
 
         agg_func = {}
         for col in ['category_2', 'category_3']:
-            df[col + '_mean'] = df.groupby([col])['purchase_amount'].transform('mean')
-            agg_func[col + '_mean'] = ['mean']
+            df[col + '_pa_mean'] = df.groupby([col])['purchase_amount'].transform('mean')
+            df[col + '_pa_min'] = df.groupby([col])['purchase_amount'].transform('min')
+            df[col + '_pa_max'] = df.groupby([col])['purchase_amount'].transform('max')
+            df[col + '_pa_sum'] = df.groupby([col])['purchase_amount'].transform('sum')
+            df[col + '_pa_std'] = df.groupby([col])['purchase_amount'].transform('std')
+            agg_func[col + '_pa_mean'] = ['mean']
+            agg_func[col + '_pa_min'] = ['mean']
+            agg_func[col + '_pa_max'] = ['mean']
+            agg_func[col + '_pa_sum'] = ['mean']
+            agg_func[col + '_pa_std'] = ['mean']
 
         # get dummies
-        df = pd.get_dummies(df, columns=['category_2', 'category_3'])
+        # df = pd.get_dummies(df, columns=['category_2', 'category_3'])
+        df['category_3'] = df['category_3'].map({'A': 0, 'B': 1, 'C': 2}).astype(int)
 
         agg_func['card_id'] = ['size', 'count']
         agg_func['category_1'] = ['sum', 'mean']
-        agg_func['category_2_1.0'] = ['mean']
-        agg_func['category_2_2.0'] = ['mean']
-        agg_func['category_2_3.0'] = ['mean']
-        agg_func['category_2_4.0'] = ['mean']
-        agg_func['category_2_5.0'] = ['mean']
-        agg_func['category_3_A'] = ['mean']
-        agg_func['category_3_B'] = ['mean']
-        agg_func['category_3_C'] = ['mean']
+        agg_func['category_2'] = ['mean']
+        agg_func['category_3'] = ['mean']
+        agg_func['isnull_category_2'] = ['sum', 'mean']
+        agg_func['isnull_category_3'] = ['sum', 'mean']
         agg_func['merchant_id'] = ['nunique']
         agg_func['merchant_category_id'] = ['nunique']
         agg_func['state_id'] = ['nunique']
@@ -57,15 +67,14 @@ class _102_AggregateAuthorized(FeatureBase):
         agg_func['purchase_amount'] = ['sum', 'mean', 'max', 'min', 'var', 'skew']
         agg_func['price'] = ['sum', 'mean', 'max', 'min', 'var', 'skew']
         agg_func['installments'] = ['sum', 'mean', 'max', 'min', 'var', 'skew']
+        agg_func['isnull_installments'] = ['sum', 'mean']
         agg_func['month_lag'] = ['mean', 'max', 'var', 'skew']
         agg_func['month_diff'] = ['mean', 'max', 'var', 'skew']
-        agg_func['authorized_flag'] = ['mean']
         agg_func['duration'] = ['mean', 'min', 'max', 'var', 'skew']
         agg_func['amount_month_ratio'] = ['mean', 'min', 'max', 'var', 'skew']
 
         feat = df.groupby(['card_id']).agg(agg_func)
         feat.columns = ['-'.join(col).strip() for col in feat.columns.values]
-
         return feat.reset_index()
 
 

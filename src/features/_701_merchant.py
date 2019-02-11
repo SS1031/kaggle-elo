@@ -71,13 +71,17 @@ class _701_Merchant(FeatureBase):
         for col in map_cols:
             df[col] = df[col].map({'A': 5, 'B': 4, 'C': 3, 'D': 2, 'E': 1})
 
-        numerical_cols = ['numerical_1', 'numerical_2']
-        for col in numerical_cols:
-            df = clipping_outliers(df, df, col)
+        # https://www.kaggle.com/raddar/towards-de-anonymizing-the-data-some-insightsの変換
+        df['trans_numerical_1'] = np.round(df['numerical_1'] / 0.009914905 + 5.79639, 0)
+        df['trans_numerical_2'] = np.round(df['numerical_2'] / 0.009914905 + 5.79639, 0)
 
-        for col in numerical_cols:
-            b = df[col].unique()
-            df[col] = df[col].apply(lambda x: 0 if x == b[0] else (1 if x in b[1:4] else 2))
+        # # numerical_cols = ['numerical_1', 'numerical_2']
+        # # for col in numerical_cols:
+        # #     df = clipping_outliers(df, df, col)
+        #
+        # for col in numerical_cols:
+        #     b = df[col].unique()
+        #     df[col] = df[col].apply(lambda x: 0 if x == b[0] else (1 if x in b[1:4] else 2))
 
         df = df.drop(columns=['avg_purchases_lag3', 'avg_sales_lag3', 'avg_purchases_lag6', 'avg_sales_lag6'])
         base = base.merge(df, on='merchant_id', how='left')
@@ -89,8 +93,8 @@ class _701_Merchant(FeatureBase):
         aggs['subsector_id'] = ['nunique']
         aggs['city_id'] = ['nunique']
         aggs['state_id'] = ['nunique']
-        aggs['numerical_1'] = ['sum', 'mean', 'max', 'min', 'var', 'skew']
-        aggs['numerical_2'] = ['sum', 'mean', 'max', 'min', 'var', 'skew']
+        aggs['numerical_1'] = ['sum', 'mean', 'max', 'min', 'var', 'skew', 'nunique']
+        aggs['numerical_2'] = ['sum', 'mean', 'max', 'min', 'var', 'skew', 'nunique']
         aggs['category_1'] = ['sum', 'mean']
         aggs['category_4'] = ['sum', 'mean']
         aggs['most_recent_sales_range'] = ['sum', 'mean', 'max', 'min', 'var', 'skew']

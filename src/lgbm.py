@@ -90,37 +90,6 @@ def optuna_objective_lgbm(trial, trn, target, features):
         "colsample_bytree": trial.suggest_uniform("colsample_bytree", 0.3, 1.0),
     }
 
-    # "num_leaves": 51,
-    # "min_data_in_leaf": 35,
-    # "objective": "regression",
-    # "max_depth": -1,
-    # "learning_rate": 0.008,
-    # "boosting": "gbdt",
-    # "feature_fraction": 0.85,
-    # "bagging_freq": 1,
-    # "bagging_fraction": 0.82,
-    # "bagging_seed": 42,
-    # "metric": "rmse",
-    # "lambda_l1": 0.11,
-    # "random_state": 2019
-    #
-    # 'learning_rate': 0.01,
-    # 'subsample': 0.9855232997390695,
-    # 'max_depth': 7,
-    # 'top_rate': 0.9064148448434349,
-    # 'num_leaves': 63,
-    # 'min_child_weight': 41.9612869171337,
-    # 'other_rate': 0.0721768246018207,
-    # 'reg_alpha': 9.677537745007898,
-    # 'colsample_bytree': 0.5665320670155495,
-    # 'min_split_gain': 9.820197773625843,
-    # 'reg_lambda': 8.2532317400459,
-    # 'min_data_in_leaf': 21,
-    # 'verbose': -1,
-    # 'seed': int(2 ** n_fold),
-    # 'bagging_seed': int(2 ** n_fold),
-    # 'drop_seed': int(2 ** n_fold)
-
     return cv_lgbm(trn, target, features, param, n_splits=4)
 
 
