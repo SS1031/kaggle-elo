@@ -7,6 +7,7 @@ import numpy as np
 import lightgbm as lgb
 
 from collections import OrderedDict
+from sklearn.model_selection import KFold
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import mean_squared_error
 
@@ -14,16 +15,18 @@ import utils
 from features._002_load import load_feature_sets
 
 
-def cv_lgbm(trn, target, features, param, tst=None, importance=False, n_splits=9):
+def cv_lgbm(trn, target, features, param, tst=None, importance=False, n_splits=9, stratified=False, random_state=326):
     if tst is not None:
         predictions = np.zeros(len(tst))
 
     mean_train_score = 0
     oof = np.zeros(len(trn))
     feature_importance_df = pd.DataFrame()
-    # folds = KFold(n_splits=5, shuffle=True, random_state=15)
 
-    folds = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=15)
+    if stratified == 1:
+        folds = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+    else:
+        folds = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
 
     for fold_, (trn_idx, val_idx) in enumerate(folds.split(trn, trn.target_outlier.values)):
 

@@ -17,6 +17,7 @@ from features._401_aggregate import _401_Aggregate
 from features._601_new_hist import _601_NewHist
 from features._602_recent_aggregate import _602_Recent5Aggregate
 from features._602_recent_aggregate import _602_Recent30Aggregate
+from features._701_merchant import _701_Merchant
 
 MAPPER = {
     "_101_aggregate": _101_Aggregate,
@@ -38,4 +39,5 @@ MAPPER = {
     "_601_new_hist": _601_NewHist,
     "_602_recent5_aggregate": _602_Recent5Aggregate,
     "_602_recent30_aggregate": _602_Recent30Aggregate,
+    "_701_merchant": _701_Merchant,
 }

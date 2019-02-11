@@ -46,7 +46,8 @@ features = [c for c in trn.columns if c not in ['card_id', 'first_active_month',
 param = conf['model']['params']
 
 predictions, cv_score, mean_train_score, feature_importance_df = \
-    cv_lgbm(trn, target, features, param, tst, importance=True)
+    cv_lgbm(trn, target, features, param, tst, importance=True,
+            stratified=conf['model']['stratified'], random_state=SEED)
 
 result_summary = pd.DataFrame({"config": [options.config],
                                "mean_train_score": [mean_train_score],
