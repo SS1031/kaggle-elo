@@ -1,0 +1,37 @@
+{
+  "seed": 326,
+  "feature_sets": [
+    "_101_aggregate",
+    "_108_purchase_date",
+    "_109_special_date",
+    "_201_aggregate",
+    "_208_purchase_date",
+    "_209_special_date",
+    "_301_train_test",
+    "_302_first_active_month",
+    "_601_new_hist",
+    "_602_recent5_aggregate",
+    "_602_recent30_aggregate"
+  ],
+  "model": {
+    "name": "lgbm",
+    "params": {
+      "objective": "regression",
+      "learning_rate": 0.001,
+      "boosting": "gbdt",
+      "bagging_freq": 1,
+      "bagging_seed": 42,
+      "metric": "rmse",
+      "lambda_l1": 0.11,
+      "min_data_in_leaf": 30,
+      "subsample": 0.8511995516784554,
+      "num_leaves": 85,
+      "min_child_weight": 31,
+      "max_depth": 8,
+      "feature_fraction": 0.8486835305919984,
+      "bagging_fraction": 0.7390127485575424,
+      "colsample_bytree": 0.605207917580445,
+      "random_state": 2019
+    }
+  }
+}

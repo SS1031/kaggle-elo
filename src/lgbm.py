@@ -14,7 +14,7 @@ import utils
 from features._002_load import load_feature_sets
 
 
-def cv_lgbm(trn, target, features, param, tst=None, importance=False):
+def cv_lgbm(trn, target, features, param, tst=None, importance=False, n_splits=9):
     if tst is not None:
         predictions = np.zeros(len(tst))
 
@@ -23,7 +23,7 @@ def cv_lgbm(trn, target, features, param, tst=None, importance=False):
     feature_importance_df = pd.DataFrame()
     # folds = KFold(n_splits=5, shuffle=True, random_state=15)
 
-    folds = StratifiedKFold(n_splits=9, shuffle=True, random_state=15)
+    folds = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=15)
 
     for fold_, (trn_idx, val_idx) in enumerate(folds.split(trn, trn.target_outlier.values)):
 
@@ -71,19 +71,54 @@ def cv_lgbm(trn, target, features, param, tst=None, importance=False):
 
 def optuna_objective_lgbm(trial, trn, target, features):
     param = {
-        'objective': 'binary',
-        'metric': 'rmse',
-        'learning_rate': 0.05,
-        'boosting_type': trial.suggest_categorical('boosting', ['gbdt', 'dart', 'goss']),
-        'subsample': trial.suggest_uniform('subsample', 0.7, 1.0),
-        'num_leaves': trial.suggest_int('num_leaves', 30, 200),
-        'min_child_weight': trial.suggest_int('min_child_weight', 5, 100),
-        'max_depth': trial.suggest_int('max_depth', 5, 15),
-        # 'num_boost_round': trial.suggest_int('num_boost_round', 10, 100000)
-        # min_child_samples = trial.suggest_int('min_child_samples', 5, 500)
+        "objective": "regression",
+        "metric": "rmse",
+        "learning_rate": 0.01,
+        "boosting_type": "gbdt",
+        "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 15, 30),
+        "subsample": trial.suggest_uniform("subsample", 0.7, 1.0),
+        "num_leaves": trial.suggest_int("num_leaves", 32, 128),
+        "min_child_weight": trial.suggest_int("min_child_weight", 5, 100),
+        "max_depth": trial.suggest_int("max_depth", 5, 15),
+        "feature_freq": 1,
+        "feature_fraction": trial.suggest_uniform("feature_fraction", 0.5, 1.0),
+        "bagging_freq": 1,
+        "bagging_fraction": trial.suggest_uniform("bagging_fraction", 0.5, 1.0),
+        "colsample_bytree": trial.suggest_uniform("colsample_bytree", 0.3, 1.0),
     }
 
-    return cv_lgbm(trn, target, features, param)
+    # "num_leaves": 51,
+    # "min_data_in_leaf": 35,
+    # "objective": "regression",
+    # "max_depth": -1,
+    # "learning_rate": 0.008,
+    # "boosting": "gbdt",
+    # "feature_fraction": 0.85,
+    # "bagging_freq": 1,
+    # "bagging_fraction": 0.82,
+    # "bagging_seed": 42,
+    # "metric": "rmse",
+    # "lambda_l1": 0.11,
+    # "random_state": 2019
+    #
+    # 'learning_rate': 0.01,
+    # 'subsample': 0.9855232997390695,
+    # 'max_depth': 7,
+    # 'top_rate': 0.9064148448434349,
+    # 'num_leaves': 63,
+    # 'min_child_weight': 41.9612869171337,
+    # 'other_rate': 0.0721768246018207,
+    # 'reg_alpha': 9.677537745007898,
+    # 'colsample_bytree': 0.5665320670155495,
+    # 'min_split_gain': 9.820197773625843,
+    # 'reg_lambda': 8.2532317400459,
+    # 'min_data_in_leaf': 21,
+    # 'verbose': -1,
+    # 'seed': int(2 ** n_fold),
+    # 'bagging_seed': int(2 ** n_fold),
+    # 'drop_seed': int(2 ** n_fold)
+
+    return cv_lgbm(trn, target, features, param, n_splits=4)
 
 
 if __name__ == '__main__':

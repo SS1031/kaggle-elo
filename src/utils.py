@@ -71,3 +71,34 @@ def load_tst_base():
 
 def load_target():
     return pd.read_feather(os.path.join(CONST.INDIR, 'train.feather'))[[CONST.TARGET]]
+
+
+def print_null(df):
+    for col in df:
+        if df[col].isnull().any():
+            print('%s has %.0f null values: %.3f%%' % (
+                col, df[col].isnull().sum(), df[col].isnull().sum() / df[col].count() * 100))
+
+
+def impute_na(X_train, df, variable):
+    # make temporary df copy
+    temp = df.copy()
+
+    # extract random from train set to fill the na
+    random_sample = X_train[variable].dropna().sample(temp[variable].isnull().sum(), random_state=0, replace=True)
+
+    # pandas needs to have the same index in order to merge datasets
+    random_sample.index = temp[temp[variable].isnull()].index
+    temp.loc[temp[variable].isnull(), variable] = random_sample
+    return temp[variable]
+
+
+# Clipping outliers
+def clipping_outliers(X_train, df, var):
+    IQR = X_train[var].quantile(0.75) - X_train[var].quantile(0.25)
+    lower_bound = X_train[var].quantile(0.25) - 6 * IQR
+    upper_bound = X_train[var].quantile(0.75) + 6 * IQR
+    no_outliers = len(df[df[var] > upper_bound]) + len(df[df[var] < lower_bound])
+    print('There are %i outliers in %s: %.3f%%' % (no_outliers, var, no_outliers / len(df)))
+    df[var] = df[var].clip(lower_bound, upper_bound)
+    return df
