@@ -9,10 +9,10 @@ from utils import impute_na
 from features import FeatureBase
 
 
-class _401_Aggregate(FeatureBase):
-    fin = [os.path.join(CONST.INDIR, "historical_transactions.feather"),
+class _501_Aggregate(FeatureBase):
+    fin = [os.path.join(CONST.INDIR, "new_merchant_transactions.feather"),
            os.path.join(CONST.INDIR, "merchants.feather")]
-    pref = "_401_hist_merchant_"
+    pref = "_501_new_merchant_"
 
     def create_feature_impl(self, df_list, random_state):
         n_trans = df_list[0]
@@ -78,11 +78,11 @@ class _401_Aggregate(FeatureBase):
             'state_id': ['nunique'],
             'category_1': ['sum', 'mean'],
             'category_4': ['sum', 'mean'],
-            'category_2_1.0': ['mean'],
-            'category_2_2.0': ['mean'],
-            'category_2_3.0': ['mean'],
-            'category_2_4.0': ['mean'],
-            'category_2_5.0': ['mean'],
+            'category_2_1.0': ['sum', 'mean'],
+            'category_2_2.0': ['sum', 'mean'],
+            'category_2_3.0': ['sum', 'mean'],
+            'category_2_4.0': ['sum', 'mean'],
+            'category_2_5.0': ['sum', 'mean'],
             'most_recent_sales_range': ['sum', 'mean', 'median', 'max', 'min', 'var', 'skew'],
             'most_recent_purchases_range': ['sum', 'mean', 'median', 'max', 'min', 'var', 'skew'],
             'trans_numerical_1': ['mean', 'median', 'min', 'max', 'var', 'skew'],
@@ -114,7 +114,7 @@ class _401_Aggregate(FeatureBase):
 
 
 if __name__ == '__main__':
-    trn_list, tst_list = _401_Aggregate().create_feature()
+    trn_list, tst_list = _501_Aggregate().create_feature(devmode=True)
     #
     # fin = [os.path.join(CONST.INDIR, "new_merchant_transactions.feather"),
     #        os.path.join(CONST.INDIR, "merchants.feather")]

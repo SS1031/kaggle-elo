@@ -14,6 +14,7 @@ from features._209_special_date import _209_SpecialDate
 from features._301_train_test import _301_TrainTest
 from features._302_first_active_month import _302_FirstActiveMonth
 from features._401_aggregate import _401_Aggregate
+from features._501_aggregate import _501_Aggregate
 from features._601_new_hist import _601_NewHist
 from features._602_recent_aggregate import _602_Recent5Aggregate
 from features._602_recent_aggregate import _602_Recent30Aggregate
@@ -36,6 +37,7 @@ MAPPER = {
     "_301_train_test": _301_TrainTest,
     "_302_first_active_month": _302_FirstActiveMonth,
     "_401_aggregate": _401_Aggregate,
+    "_501_aggregate": _501_Aggregate,
     "_601_new_hist": _601_NewHist,
     "_602_recent5_aggregate": _602_Recent5Aggregate,
     "_602_recent30_aggregate": _602_Recent30Aggregate,
