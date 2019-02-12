@@ -44,7 +44,7 @@ print(f"Outliers: \n{trn['target_outlier'].value_counts()}")
 features = [c for c in trn.columns if c not in ['card_id', 'first_active_month', 'target_outlier']]
 
 study = optuna.create_study()
-study.optimize(lambda trial: optuna_objective_lgbm(trial, trn, target, features), n_trials=30)
+study.optimize(lambda trial: optuna_objective_lgbm(trial, trn, target, features), n_trials=50)
 print('Number of finished trials: {}'.format(len(study.trials)))
 print('Best trial:')
 trial = study.best_trial
