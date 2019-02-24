@@ -42,9 +42,7 @@ trn.drop(columns=['target'], inplace=True)
 print(f"Outliers: \n{trn['target_outlier'].value_counts()}")
 
 features = [c for c in trn.columns if c not in ['card_id', 'first_active_month', 'target_outlier']]
-
 param = conf['model']['params']
-
 predictions, cv_score, mean_train_score, feature_importance_df = \
     cv_lgbm(trn, target, features, param, tst, importance=True,
             stratified=conf['model']['stratified'], random_state=SEED)

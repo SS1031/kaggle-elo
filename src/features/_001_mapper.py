@@ -7,10 +7,12 @@ from features._106_aggregate_rejected_per_month import _106_AggregateRejectedPer
 from features._107_aggregate_per_hour import _107_AggregatePerHour
 from features._108_purchase_date import _108_PurchaseDate
 from features._109_special_date import _109_SpecialDate
+from features._110_top3_subsector import _110_Top3Subsector
 from features._201_aggregate import _201_Aggregate
 from features._202_sub_aggregate import _202_SubAggregate
 from features._208_purchase_date import _208_PurchaseDate
 from features._209_special_date import _209_SpecialDate
+from features._210_top3_subsector import _210_Top3Subsector
 from features._301_train_test import _301_TrainTest
 from features._302_first_active_month import _302_FirstActiveMonth
 from features._401_aggregate import _401_Aggregate
@@ -30,10 +32,12 @@ MAPPER = {
     "_107_aggregate_per_hour": _107_AggregatePerHour,
     "_108_purchase_date": _108_PurchaseDate,
     "_109_special_date": _109_SpecialDate,
+    "_110_top3_subsector": _110_Top3Subsector,
     "_201_aggregate": _201_Aggregate,
     "_202_sub_aggregate": _202_SubAggregate,
     "_208_purchase_date": _208_PurchaseDate,
     "_209_special_date": _209_SpecialDate,
+    "_210_top3_subsector": _210_Top3Subsector,
     "_301_train_test": _301_TrainTest,
     "_302_first_active_month": _302_FirstActiveMonth,
     "_401_aggregate": _401_Aggregate,
